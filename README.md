@@ -19,45 +19,42 @@ Contenido del archivo
 
 ```yml
 services:
-  odoo:                                    # Define el servicio Odoo
-    image: odoo:17.0                       # Especifica la imagen de Docker para Odoo, versión 17.0.
-    depends_on:                            # Asegura que el servicio de base de datos se inicie antes que el servicio Odoo
+  web: #servicio Odoo
+    image: odoo:17.0 #imagen odoo
+    restart: always #siempre reiniciar en caso de error
+    depends_on:
       - db
-    restart: unless-stopped                # El contenedor se reiniciara automáticamente a menos que se detenga explícitamente
+    ports: #puertos
+      - "8069:8069"
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+      - ./config:/etc/odoo
+      - ./addons:/mnt/extra-addons
+    environment: #variables de entorno
+      - HOST=db #host de la base de datos
+      - USER=odoo #usuario de la base de datos
+      - PASSWORD=odoo #contraseña de la base de datos
+  db: #servicio de base de datos
+    image: postgres:15
     ports:
-      - "8055:8069"                        # Asigna el puerto predeterminado de Odoo al puerto 8055
+      - "5432:5432"
     environment:
-      HOST: db                             # El nombre de host para el servicio de base de datos
-      USER: admin                          # El nombre de usuario para la base de datos
-      PASSWORD: pswd                       # La contraseña para la base de datos
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
 
-  db:                                      # Define el servicio de base de datos PostgreSQL
-    image: postgres:latest                 # Especifica la imagen de Docker para PostgreSQL, ultima versión
-    restart: unless-stopped                # El contenedor se reiniciara automáticamente a menos que se detenga explícitamente
-    environment:                 
-      POSTGRES_DB: odoo                    # El nombre de la base de datos predeterminada
-      POSTGRES_PASSWORD: pswd              # La contraseña para el usuario de PostgreSQL
-      POSTGRES_USER: admin                 # El nombre de usuario de PostgreSQL
-      PGDATA: /var/lib/postgresql/data/pgdata      # Especifica la ruta dónde PostgreSQL almacena los datos dentro del contenedor
-    volumes:                               # Monta un volumen para conservar los datos de la base de datos
-      - odoo-db-data:/var/lib/postgresql/data/pgdata
-
-  pgadmin:                                 # Define el servicio pgAdmin
-    image: dpage/pgadmin4                  # Especifica la imagen de Docker para pgAdmin
-    restart: unless-stopped                # El contenedor se reiniciara automáticamente a menos que se detenga explícitamente
-    ports:                                 # Asigna el puerto predeterminado de interfaz web pgAdmin al puerto 8065
-      - "8065:80"      
-    environment:        
-      PGADMIN_DEFAULT_EMAIL: admin@example.com     # El correo electrónico de inicio de sesión para pgAdmin
-      PGADMIN_DEFAULT_PASSWORD: admin      # La contraseña para el usuario pgAdmin
-    depends_on:                            # Asegura que el servicio de base de datos se inicie antes que el servicio pgAdmin
+  pgadmin: #servicio de pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ayesa@dam.com
+      PGADMIN_DEFAULT_PASSWORD: 1234
+    depends_on:
       - db
-    volumes:                               # Monta un volumen para conservar los datos de pgAdmin
-      - pgadmin-data:/var/lib/pgadmin
-
-volumes:                                   # Define los volúmenes declarados en los servicios
-  odoo-db-data:
-  pgadmin-data:
+volumes:
+  odoo-web-data:
 ```
 Puesta en marcha
     
@@ -68,3 +65,23 @@ docker compose up -d
 # Ejecución en primer plano  (muestra el log de los contenedores)
 docker compose up 
 ```
+
+## Acceso e instalación
+
+### Odoo
+
+Accedemos a Odoo a través de:
+
+```bash
+http://localhost:8069
+```
+La página resultante debe ser similar a la siguiente:
+![Screenshot_20250220_112319.png](img/Screenshot_20250220_112319.png)
+
+Una vez introducidos los datos, pulsamos en "Crear base de datos" y se nos redirigirá a la página de login.
+![Screenshot_20250220_112435.png](img/Screenshot_20250220_112435.png)
+
+Iniciamos y nos redirigirá a la página principal de Odoo.
+![Screenshot_20250220_112537.png](img/Screenshot_20250220_112537.png)
+
+### PgAdmin

@@ -1,0 +1,38 @@
+services:
+  web: #servicio Odoo
+    image: odoo:17.0 #imagen odoo
+    restart: always #siempre reiniciar en caso de error
+    depends_on:
+      - db
+    ports: #puertos
+      - "8069:8069"
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+      - ./config:/etc/odoo
+      - ./addons:/mnt/extra-addons
+    environment: #variables de entorno
+      - HOST=db #host de la base de datos
+      - USER=odoo #usuario de la base de datos
+      - PASSWORD=odoo #contraseña de la base de datos
+  db: #servicio de base de datos
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+
+  pgadmin: #servicio de pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ayesa@dam.com
+      PGADMIN_DEFAULT_PASSWORD: 1234
+    depends_on:
+      - db
+volumes:
+  odoo-web-data:
+
