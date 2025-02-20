@@ -85,3 +85,42 @@ Iniciamos y nos redirigirá a la página principal de Odoo.
 ![Screenshot_20250220_112537.png](img/Screenshot_20250220_112537.png)
 
 ### PgAdmin
+
+Acedemos a nuestra instalación de pgAdmin mediante:
+
+```bash
+http://localhost:8080
+```
+
+La página resultante debe ser similar a la siguiente:
+![Screenshot_20250220_113840.png](img/Screenshot_20250220_113840.png)
+
+Una vez introducidos los datos que especificamos en el archivo compose.yml, tendremos acceso a la página principal de nuestra sesión. Aquí podemos conectar nuestro servidor con los datos de Odoo seleccionando la opción: Agregar nuevo servidor.
+![Screenshot_20250220_114320.png](img/Screenshot_20250220_114320.png)
+
+Tras conectar correctamente la base de datos con pgAdmin, podremos visualizar los datos de Odoo desde la página.
+![Screenshot_20250220_114627.png](img/Screenshot_20250220_114627.png)
+
+## Preguntas
+
+#### ¿Que ocurre si en el ordenador local el puerto 5432 está ocupado?
+Nos dara error porque el puerto ya esta siendo usado, tendriamos que detener el proceso que lo esta usando o cambiar el puerto en el compose
+
+Cambiar puerto para la base de datos en docker-compose.yml:
+```bash
+db:
+  ports:
+    - "5433:5432"
+```
+ 
+Usa el puerto 5433 para conectarte desde PgAdmin.
+#### ¿Y si lo estuviese el 8069?
+Nos dara error porque el puerto ya esta siendo usado, tendriamos que detener el proceso que lo esta usando o cambiar el puerto en el compose
+
+1. Cambiar puerto para Odoo en docker-compose.yml:
+```bash
+web:
+  ports:
+    - "8070:8069"
+```
+2. Accede a Odoo usando http://localhost:8070.
